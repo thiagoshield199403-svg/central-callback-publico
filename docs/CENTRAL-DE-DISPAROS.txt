@@ -1,0 +1,44 @@
+CENTRAL DE DISPAROS - ATENDIMENTO POR WHATSAPP WEB
+===================================================
+Dados de teste 100% ficticios. Nenhuma mensagem real foi enviada durante o desenvolvimento.
+
+1. AS TRES OPCOES
+1) Envio individual: abre um incidente na lista e usa o WhatsApp Web. O operador confere, envia e registra.
+2) Envio em lote: atendimento guiado (secao 2). Nao usa API da Meta nem envia nada sozinho.
+3) Callback manual: abre a tela CALLBACK WHATSAPP (docs\DRIVE-BI-E-POLOS.txt, secao 2).
+
+2. ENVIO EM LOTE, PASSO A PASSO
+a) Marque os incidentes na tela e clique em INICIAR ATENDIMENTO.
+b) O primeiro incidente aparece em destaque com cliente, telefone, numero e mensagem.
+c) ABRIR WHATSAPP abre o WhatsApp Web com o contato e a mensagem prontos, sempre na mesma aba. Quem envia e o operador.
+d) Ao voltar para a janela da Central, o proximo incidente aparece sozinho.
+e) Pausar, Retomar, Pular e Cancelar ficam na propria tela. O progresso fica gravado: fechar ou recarregar a pagina nao perde nada.
+
+3. CONTABILIZACAO (LIMITACAO DO WHATSAPP WEB)
+O navegador nao consegue saber se a mensagem saiu. Abrir o WhatsApp e voltar para a Central NAO contam como callback.
+Ao voltar, o incidente fica como ENVIO NAO CONFIRMADO, sem impedir o avanco. Na lista "Envio nao confirmado":
+- "Enviei": registra UM callback do operador, com data, hora e meio WhatsApp. Entra no painel, no fechamento diario e no BI.
+- "Nao enviei": nao conta, e o incidente volta a poder ser selecionado.
+Enquanto nao confirmado, o incidente nao pode ser selecionado de novo (evita mensagem repetida).
+Encerrar o lote sem confirmar: o envio fica sem contar, e a Central avisa antes.
+
+4. REGRAS
+- Mensagens: as mesmas funcoes do envio individual. js\modelos.js nao foi alterado.
+- A mensagem vai so para o contato principal do incidente; os demais usam o envio individual do painel.
+- Nao podem ser selecionados: callback ja realizado, mensagem confirmada ou envio nao confirmado.
+- Sem celular, telefone invalido ou achado no comentario: corrija ou confirme no cartao, ou pule o incidente.
+- Callback registrado por outra via durante o atendimento: o incidente e pulado sozinho e nao conta de novo.
+- Pop-up bloqueado: o incidente nao avanca. Permita pop-ups para a Central.
+- Encerrar o lote e recusado com atendimento em andamento ou pausado. Ao encerrar, nome, telefone e texto sao apagados.
+
+5. CODIGO ANTERIOR DA API OFICIAL
+A tela nao usa mais a fila por API. O motor antigo (js\disparos.js, processarFila) e a rota /api/disparo/enviar do gateway continuam no codigo, sem uso pela tela,
+para abrir o historico de filas antigas. O gateway segue necessario para o fechamento no Drive e o BI.
+
+6. COMO LIGAR
+node --env-file=gateway\.env gateway\servidor.mjs  e abra http://127.0.0.1:8787/ no Edge ou Chrome (sem .env: node gateway\servidor.mjs).
+O envio em lote tambem funciona pelo index.html, mas o navegador separa os dados por endereco: use sempre o mesmo no turno.
+
+7. TESTES
+node testes\ponta-a-ponta\rodar-testes-unitarios.mjs
+node testes\ponta-a-ponta\e2e-disparos.mjs
